@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rustup target *)",
+      "Read(//c/Users/pandaa/.rustup/toolchains/**)",
+      "Read(//c/Users/pandaa/.rustup/update-hashes/**)",
+      "Bash(xargs -I{} cp -r {} \"c:/Users/pandaa/jizhang/\")"
+    ]
+  }
+}

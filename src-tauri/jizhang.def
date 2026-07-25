@@ -1,0 +1,3 @@
+EXPORTS
+  ; Tauri only needs the run function exported
+  run

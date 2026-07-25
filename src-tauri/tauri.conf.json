@@ -1,0 +1,37 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nickkuk/nickkuk.github.io/master/schemas/tauri-v2-schema.json",
+  "productName": "记账",
+  "version": "1.0.0",
+  "identifier": "com.jizhang.app",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "记账",
+        "width": 960,
+        "height": 700,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

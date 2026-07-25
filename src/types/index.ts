@@ -18,6 +18,7 @@ export interface Category {
   icon: string;
   parent_id: number | null;
   sort_order: number;
+  type: TransactionType;  // 属于支出还是收入
 }
 
 // 新增交易表单

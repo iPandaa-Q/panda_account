@@ -29,7 +29,8 @@ export default function AddExpense({ open, onClose, onSuccess, editTransaction }
   }, [open]);
 
   async function initForm() {
-    const cats = await getPrimaryCategories();
+    const currentType = editTransaction ? editTransaction.type : txType;
+    const cats = await getPrimaryCategories(currentType);
     setPrimaryCategories(cats);
 
     if (editTransaction) {
@@ -40,7 +41,7 @@ export default function AddExpense({ open, onClose, onSuccess, editTransaction }
 
       if (parentId) {
         setSelectedPrimary(parentId);
-        const subs = await getSubCategories(parentId);
+        const subs = await getSubCategories(parentId, editTransaction.type);
         setSubCategories(subs);
       }
 
@@ -61,17 +62,20 @@ export default function AddExpense({ open, onClose, onSuccess, editTransaction }
   }
 
   function handleTypeChange(val: string) {
-    setTxType(val as TransactionType);
+    const newType = val as TransactionType;
+    setTxType(newType);
     setSelectedPrimary(null);
     setSubCategories([]);
     form.setFieldsValue({ categoryId: undefined });
+    // 切换类型时重新加载对应分类
+    getPrimaryCategories(newType).then(setPrimaryCategories);
   }
 
   async function handlePrimaryChange(primaryId: number) {
     setSelectedPrimary(primaryId);
     form.setFieldsValue({ categoryId: undefined });
     if (primaryId) {
-      const subs = await getSubCategories(primaryId);
+      const subs = await getSubCategories(primaryId, txType);
       setSubCategories(subs);
     } else {
       setSubCategories([]);

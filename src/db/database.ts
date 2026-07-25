@@ -22,6 +22,7 @@ async function initTables(): Promise<void> {
       icon TEXT NOT NULL DEFAULT '',
       parent_id INTEGER,
       sort_order INTEGER NOT NULL DEFAULT 0,
+      type TEXT NOT NULL DEFAULT 'expense',
       FOREIGN KEY (parent_id) REFERENCES categories(id)
     )
   `);
@@ -39,33 +40,53 @@ async function initTables(): Promise<void> {
     )
   `);
 
-  const count = await database.select<{ cnt: number }[]>(
-    "SELECT COUNT(*) as cnt FROM categories"
+  // 迁移：为旧数据库的 categories 表添加 type 列
+  try {
+    await database.execute(
+      "ALTER TABLE categories ADD COLUMN type TEXT NOT NULL DEFAULT 'expense'"
+    );
+  } catch {
+    // 列已存在，忽略
+  }
+
+  // 确保所有收入分类的 type 正确（修复中间版本可能产生的错误）
+  await database.execute(
+    "UPDATE categories SET type = 'income' WHERE id >= 14"
   );
-  if (count[0].cnt === 0) {
-    for (const cat of PRESET_CATEGORIES) {
-      await database.execute(
-        "INSERT INTO categories (id, name, icon, parent_id, sort_order) VALUES ($1, $2, $3, $4, $5)",
-        [cat.id, cat.name, cat.icon, cat.parent_id, cat.sort_order]
-      );
-    }
+
+  // 始终同步预设分类：INSERT OR REPLACE 确保数据库与代码中的分类一致
+  // 已有分类会更新（名称/图标/类型），新分类会插入
+  for (const cat of PRESET_CATEGORIES) {
+    await database.execute(
+      "INSERT OR REPLACE INTO categories (id, name, icon, parent_id, sort_order, type) VALUES ($1, $2, $3, $4, $5, $6)",
+      [cat.id, cat.name, cat.icon, cat.parent_id, cat.sort_order, cat.type]
+    );
   }
 }
 
 // ===== 分类 =====
-export async function getPrimaryCategories(): Promise<Category[]> {
+export async function getPrimaryCategories(type?: TransactionType): Promise<Category[]> {
   const database = await getDb();
-  return await database.select<Category[]>(
-    "SELECT * FROM categories WHERE parent_id IS NULL ORDER BY sort_order"
-  );
+  let sql = "SELECT * FROM categories WHERE parent_id IS NULL";
+  const params: string[] = [];
+  if (type) {
+    sql += " AND type = ?";
+    params.push(type);
+  }
+  sql += " ORDER BY sort_order";
+  return await database.select<Category[]>(sql, params);
 }
 
-export async function getSubCategories(parentId: number): Promise<Category[]> {
+export async function getSubCategories(parentId: number, type?: TransactionType): Promise<Category[]> {
   const database = await getDb();
-  return await database.select<Category[]>(
-    "SELECT * FROM categories WHERE parent_id = $1 ORDER BY sort_order",
-    [parentId]
-  );
+  let sql = "SELECT * FROM categories WHERE parent_id = ?";
+  const params: (string | number)[] = [parentId];
+  if (type) {
+    sql += " AND type = ?";
+    params.push(type);
+  }
+  sql += " ORDER BY sort_order";
+  return await database.select<Category[]>(sql, params);
 }
 
 // ===== 交易 =====

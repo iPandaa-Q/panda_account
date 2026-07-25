@@ -25,8 +25,11 @@ export default function ExpenseList({ refreshKey, onEdit }: Props) {
   const [filterKeyword, setFilterKeyword] = useState("");
 
   useEffect(() => {
-    getPrimaryCategories().then(setPrimaryCategories);
-  }, []);
+    getPrimaryCategories(filterType === "all" ? undefined : filterType).then((cats) => {
+      setPrimaryCategories(cats);
+      setFilterCategory(null); // 切换类型时重置分类筛选
+    });
+  }, [filterType]);
 
   const loadData = useCallback(async () => {
     setLoading(true);

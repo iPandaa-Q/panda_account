@@ -9,6 +9,7 @@ import { writeTextFile, copyFile, exists } from "@tauri-apps/plugin-fs";
 import AddExpense from "./components/AddExpense";
 import ExpenseList from "./components/ExpenseList";
 import StatsPage from "./pages/StatsPage";
+import SnakeGame from "./pages/SnakeGame";
 import { exportToCsv } from "./db/database";
 import { PRESET_CATEGORIES } from "./data/categories";
 import type { Transaction } from "./types";
@@ -110,6 +111,8 @@ function App() {
             children: <ExpenseList refreshKey={refreshKey} onEdit={handleEdit} /> },
           { key: "stats", label: <span><PieChartOutlined /> 统计</span>,
             children: <StatsPage /> },
+          { key: "snake", label: <span>🐍 贪吃蛇</span>,
+            children: <SnakeGame /> },
         ]}
       />
 

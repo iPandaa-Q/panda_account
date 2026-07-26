@@ -105,7 +105,7 @@ function App() {
         </div>
       </header>
 
-      <Tabs activeKey={activeTab} onChange={setActiveTab} centered
+      <Tabs activeKey={activeTab} onChange={setActiveTab} centered destroyInactiveTabPane
         items={[
           { key: "list", label: <span><UnorderedListOutlined /> 明细</span>,
             children: <ExpenseList refreshKey={refreshKey} onEdit={handleEdit} /> },
